@@ -1,6 +1,6 @@
 [
   {
-    "name": "Google Fremont",
+    "name": "Google Seattle",
     "id": 1,
     "tags": ["google", "techs"],
     "pos": {
@@ -18,7 +18,7 @@
     }
   },
   {
-    "name": "Microsoft Redmond",
+    "name": "Microsoft",
     "id": 3,
     "tags": ["microsoft", "tech"],
     "pos": {

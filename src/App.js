@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import './App.css';
+import Sidebar from "./sidebar.js"
 
 var google = window.google;
 var infowindow = new window.google.maps.InfoWindow();
@@ -17,7 +18,9 @@ class App extends Component {
   }
 
   componentDidMount() {
-    this.initMap();
+    if(google) {
+      this.initMap();
+    }
   }
 
   initMap = () => {
@@ -71,7 +74,7 @@ class App extends Component {
     let googleMap = this.state.map;
     if (infowindow.marker !== marker) {
       infowindow.marker = marker;
-      this.buttonTest(this.state.locations[i]);
+      this.FetchAPI(this.state.locations[i]);
       infowindow.open(googleMap, marker);
       // Make sure the marker property is cleared if the infowindow is closed.
       infowindow.addListener('closeclick',function(){
@@ -109,7 +112,7 @@ class App extends Component {
             prevSelection = undefined;
             infowindow.setMarker = null;
             infowindow.close();
-            this.ShowSelectedListings(this.refs.companysList.childNodes);
+            this.ShowSelectedListings(input.currentTarget.parentNode.childNodes);
         } else {
             prevSelection.classList.toggle("selected");
             item.classList.toggle("selected");
@@ -184,9 +187,7 @@ ShowSelectedListings = (item) => {
     })
   }
 
-  buttonTest = (location) => {
-
-    console.log(location.name)
+  FetchAPI = (location) => {
     infowindow.setContent(
       `<h2>${location.name}</h2>
       <p>
@@ -194,29 +195,37 @@ ShowSelectedListings = (item) => {
       </p>
       `)
 
-    let getAPI = fetch(`https://api.foursquare.com/v2/venues/search?ll=${location.pos.lat.toFixed(2)},${this.state.locations[0].pos.lng.toFixed(2)}&client_id=XFCQCFTGSRV30JUYFS5OZYMXCVJ3DS1K20QR3FDC1K5YFZDY%20&client_secret=%203CFG54PJ4XKFL1DC5CLCKYMO5EK131OPTQSIMGPER53CZ2TO&v=20180423&query=${location.name}`)
+    fetch(`https://api.foursquare.com/v2/venues/search?ll=${location.pos.lat.toFixed(2)},${this.state.locations[0].pos.lng.toFixed(2)}&client_id=XFCQCFTGSRV30JUYFS5OZYMXCVJ3DS1K20QR3FDC1K5YFZDY%20&client_secret=%203CFG54PJ4XKFL1DC5CLCKYMO5EK131OPTQSIMGPER53CZ2TO&v=20180423&query=${location.name}`)
+      .then(response => {
+        this.apiFetchImgs(response.json(), location);
+      }).catch(err => {
+        infowindow.setContent(
+          `<h2>${location.name}</h2>
+          <p>Couldn't retrieve image</p>
+          <p>
+            ${location.tags.map(tag => `<span>${tag}</span>`)}
+          </p>
+          `)
+      })
+  }
+
+  apiFetchImgs = (api, location) => {
+    api.then((response) => {
+      fetch(`https://api.foursquare.com/v2/venues/${response.response.venues[0].id}/photos?client_id=XFCQCFTGSRV30JUYFS5OZYMXCVJ3DS1K20QR3FDC1K5YFZDY%20&client_secret=%203CFG54PJ4XKFL1DC5CLCKYMO5EK131OPTQSIMGPER53CZ2TO&v=20180423`)
       .then(response => {
         return response.json();
+      }).then(json => {
+        let img = json.response.photos.items[0];
+        let size = 125;
+        infowindow.setContent(
+          `<h2>${location.name}</h2>
+          <img src=${img.prefix + size + img.suffix} alt=${location.name}/>
+          <p>
+            ${location.tags.map(tag => `<span>${tag}</span>`)}
+          </p>
+          `)
       })
-
-    getAPI.then((response) => {
-        fetch(`https://api.foursquare.com/v2/venues/${response.response.venues[0].id}/photos?client_id=XFCQCFTGSRV30JUYFS5OZYMXCVJ3DS1K20QR3FDC1K5YFZDY%20&client_secret=%203CFG54PJ4XKFL1DC5CLCKYMO5EK131OPTQSIMGPER53CZ2TO&v=20180423`)
-        .then(response => {
-          return response.json();
-        }).then(json => {
-          let img = json.response.photos.items[0];
-          let size = 125;
-          console.log(location);
-          infowindow.setContent(
-            `<h2>${location.name}</h2>
-            <img src=${img.prefix + size + img.suffix} alt=${location.name}/>
-            <p>
-              ${location.tags.map(tag => `<span>${tag}</span>`)}
-            </p>
-            
-            `)
-        })
-      })
+    })
   }
 
 
@@ -229,27 +238,14 @@ ShowSelectedListings = (item) => {
             <div className="bar"></div>
             <div className="bar"></div>
         </div>
-        {/* TODO: Create Sidebar component */}
-        <div id="sidebar"className={"sidebar" + this.state.sidebar}>
-          <header className="sidebar-header">
-            <h2>Locations</h2>
-            <p>Filter</p>
-            <select value={this.state.filter} onChange={this.handleChange} className="select">
-              <option value="all">All</option>
-              <option value="google">Google</option>
-              <option value="microsoft">Microsoft</option>
-              <option value="tech">Tech</option>
-              <option value="shopping">Shopping</option>
-              <option value="food">Food</option>
-              <option value="other">Other</option>
-            </select>
-          </header>
-          <ul id="list" className="list" ref="companysList">
-              {this.state.sidebarList.map((val ,i) => {
-                return <li key={i} className="list-item" onClick={this.SidebarSelection}>{val.name}</li>
-              })}
-          </ul>
-        </div>
+        <Sidebar 
+          SidebarSelection={this.SidebarSelection}
+          handleChange={this.handleChange}
+          sidebarList={this.state.sidebarList}
+          sidebar={this.state.sidebar}
+          fiter={this.state.filter}
+
+        />
         <div className="main" onClick={() => {}}>
             <div className="title"><h1 className="header-title">Seattle Based Companies</h1></div>
             <div id="map" className="map">Cannot access Google Map</div>
