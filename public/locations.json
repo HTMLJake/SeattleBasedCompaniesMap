@@ -1,0 +1,82 @@
+[
+  {
+    "name": "Google Fremont",
+    "id": 1,
+    "tags": ["google", "techs"],
+    "pos": {
+      "lat": 47.649297,
+      "lng": -122.351629
+    }
+  },
+  {
+    "name": "Google Kirkland",
+    "id": 2,
+    "tags": ["google", "tech"],
+    "pos": {
+      "lat": 47.6697163,
+      "lng": -122.197800
+    }
+  },
+  {
+    "name": "Microsoft Redmond",
+    "id": 3,
+    "tags": ["microsoft", "tech"],
+    "pos": {
+      "lat": 47.6393769,
+      "lng": -122.1282558
+    }
+  },
+  {
+    "name": "Microsoft Bellevue",
+    "id": 4,
+    "tags": ["microsoft", "tech"],
+    "pos": {
+      "lat": 47.61490,
+      "lng": -122.193975
+    }
+  },
+  {
+    "name": "Amazon",
+    "id": 5,
+    "tags": ["tech", "shopping"],
+    "pos": {
+      "lat": 47.6157224,
+      "lng": -122.3394942
+    }
+  },
+  {
+    "name": "Starbucks",
+    "id": 6,
+    "tags": ["food "],
+    "pos": {
+      "lat": 47.581144,
+      "lng": -122.3357333
+    }
+  },
+  {
+    "name": "Costco",
+    "id": 7,
+    "tags": ["shopping"],
+    "pos": {
+      "lat": 47.5486092,
+      "lng": -122.0506496
+    }
+  },
+  {
+    "name": "T-Mobile",
+    "id": 8,
+    "tags": ["tech"],
+    "pos": {
+      "lat": 47.5786262,
+      "lng": -122.1654623
+    }
+  }, {
+    "name": "Boeing",
+    "id": 9,
+    "tags": ["other"],
+    "pos": {
+      "lat": 47.4650331,
+      "lng": -122.23491673
+    }
+  }
+]
