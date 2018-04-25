@@ -3,7 +3,7 @@ import React, { Component } from "react";
 class Sidebar extends Component {
     render() {
         return (
-            <div id="sidebar"className={"sidebar" + this.props.sidebar}>
+            <nav id="sidebar"className={"sidebar" + this.props.sidebar}>
             <header className="sidebar-header">
                 <h2>Locations</h2>
                 <p>Filter</p>
@@ -17,12 +17,12 @@ class Sidebar extends Component {
                 <option value="other">Other</option>
                 </select>
             </header>
-            <ul id="list" className="list" ref="companysList">
+            <menu id="list" className="list" ref="companysList">
                 {this.props.sidebarList.map((val ,i) => {
                     return <li key={i} className="list-item" onClick={this.props.SidebarSelection}>{val.name}</li>
                 })}
-            </ul>
-            </div>
+            </menu>
+            </nav>
         )
     }
 }
