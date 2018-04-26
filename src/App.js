@@ -3,7 +3,9 @@ import './App.css';
 import Sidebar from "./sidebar.js"
 
 var google = window.google;
-var infowindow = new window.google.maps.InfoWindow();
+var infowindow;
+
+let wScripts = window.document.getElementsByTagName("script")
 
 
 class App extends Component {
@@ -18,8 +20,38 @@ class App extends Component {
   }
 
   componentDidMount() {
+
+    window.document.addEventListener("keydown", e => {
+      if(e.key === "Enter") {
+        console.log(e.key);
+        if(document.activeElement.outerHTML.includes("li")) {
+          this.SidebarSelection(document.activeElement);
+        } else if(document.activeElement.outerHTML.includes("hamburger")){
+          this.toggleSidebar();
+        }
+      }
+    })
+
     if(google) {
+      infowindow = new window.google.maps.InfoWindow();
       this.initMap();
+    } else {
+      let windowGoogle;
+      for (let s = 0; s < wScripts.length; s++) {
+        if(wScripts[s].src.includes("googleapi")) {
+          windowGoogle = wScripts[s]; 
+        }
+      }
+      if(windowGoogle) {
+        windowGoogle.addEventListener("load", e => {
+          google = window.google;
+          infowindow = new window.google.maps.InfoWindow();
+          this.initMap();
+        })
+        windowGoogle.addEventListener("error", event => {
+          console.log(event);
+        })
+      }
     }
   }
 
@@ -66,7 +98,11 @@ class App extends Component {
     
     marker.addListener('click' , function() {
       //populateInfoWindow(this, infoWindow);
+      if(infowindow.anchor){
+        infowindow.anchor.setAnimation(google.maps.Animation.NONE);
+      }
       _this.showInfoWindow(marker, index);
+      marker.setAnimation(google.maps.Animation.BOUNCE);
     })
   }
   
@@ -78,6 +114,7 @@ class App extends Component {
       infowindow.open(googleMap, marker);
       // Make sure the marker property is cleared if the infowindow is closed.
       infowindow.addListener('closeclick',function(){
+        marker.setAnimation(google.maps.Animation.NONE);
         infowindow.setMarker = null;
       });  
     }
@@ -95,6 +132,22 @@ class App extends Component {
     }
   }
 
+  showSidebar = () => {
+    if(this.state.sidebar === " ") {
+      this.setState({
+        sidebar: " open"
+      })
+    }
+  }
+
+  hideSidebar = () => {
+    if(this.state.sidebar === " open") {
+      this.setState({
+        sidebar: " "
+      })
+    }
+  }
+
   handleChange = (event) => {
     this.setState({
       filter: event.target.value
@@ -104,7 +157,12 @@ class App extends Component {
 
   SidebarSelection = (input) => {
     let prevSelection = this.state.prevSelection
-    let item = input.currentTarget;
+    let item;
+    if(input.currentTarget) {
+      item = input.currentTarget;
+    } else {
+      item = input;
+    }
 
     if(prevSelection) {
         if(prevSelection === item) {
@@ -112,7 +170,7 @@ class App extends Component {
             prevSelection = undefined;
             infowindow.setMarker = null;
             infowindow.close();
-            this.ShowSelectedListings(input.currentTarget.parentNode.childNodes);
+            this.ShowSelectedListings(input.parentNode.childNodes);
         } else {
             prevSelection.classList.toggle("selected");
             item.classList.toggle("selected");
@@ -150,6 +208,7 @@ ShowSelectedListings = (item) => {
   //Set all markers map to none
   for (let i = 0; i < this.state.markers.length; i++) {
     this.state.markers[i].setMap(null);
+    this.state.markers[i].setAnimation(google.maps.Animation.NONE);
   }
 
   //then only set the selected markers maps
@@ -163,6 +222,7 @@ ShowSelectedListings = (item) => {
   } else {
     let mIndex = this.getMarkerIndex(item);
     let _marker = this.state.markers[mIndex];
+    _marker.setAnimation(google.maps.Animation.BOUNCE);
     _marker.setMap(gMap);
     _Bounds.extend(_marker.position);
     this.showInfoWindow(_marker, mIndex);
@@ -233,10 +293,16 @@ ShowSelectedListings = (item) => {
   render() {
     return (
       <section>
-        <div id="hamburger" className={"hamburger" + this.state.sidebar} onClick={this.toggleSidebar}>
-            <div className="bar"></div>
-            <div className="bar"></div>
-            <div className="bar"></div>
+        <div 
+          tabIndex="1" 
+          id="hamburger" 
+          className={"hamburger" + this.state.sidebar} 
+          onClick={this.toggleSidebar}
+          onSelect={this.toggleSidebar}
+        >
+            <div tabIndex="-1" className="bar"></div>
+            <div tabIndex="-1" className="bar"></div>
+            <div tabIndex="-1" className="bar"></div>
         </div>
         <Sidebar 
           SidebarSelection={this.SidebarSelection}
@@ -244,11 +310,11 @@ ShowSelectedListings = (item) => {
           sidebarList={this.state.sidebarList}
           sidebar={this.state.sidebar}
           fiter={this.state.filter}
-
+          showMenu={this.showSidebar}
         />
-        <div className="main" onClick={() => {}}>
-            <div className="title"><h1 className="header-title">Seattle Based Companies</h1></div>
-            <div id="map" className="map">Cannot access Google Map</div>
+        <div className="main" onClick={this.hideSidebar} onFocus={this.hideSidebar}>
+            <div tabIndex="1" className="title"><h1 className="header-title">Seattle Based Companies</h1></div>
+            <div tabIndex="-1" id="map" className="map">Google Maps not loaded</div>
         </div>
       </section>
     );
