@@ -2,10 +2,10 @@ import React, { Component } from 'react';
 import './App.css';
 import Sidebar from "./sidebar.js"
 
-var google = window.google;
-var infowindow;
+let google = window.google;
+let infowindow;
 
-let wScripts = window.document.getElementsByTagName("script")
+const wScripts = window.document.getElementsByTagName("script");
 
 
 class App extends Component {
@@ -170,7 +170,8 @@ class App extends Component {
             prevSelection = undefined;
             infowindow.setMarker = null;
             infowindow.close();
-            this.ShowSelectedListings(input.parentNode.childNodes);
+            console.log(item.parentNode);
+            this.ShowSelectedListings(item.parentNode.childNodes);
         } else {
             prevSelection.classList.toggle("selected");
             item.classList.toggle("selected");
